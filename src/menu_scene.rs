@@ -1,3 +1,4 @@
+
 use raylib::prelude::*;
 
 use crate::game_data::GameData;
@@ -21,11 +22,11 @@ impl Scene for MenuScene{
                 println!("Clicked");
 
                 // Check to see if this works without the 'return' keyword
-                return SceneSwitch::Push(Box::new(GameScene::new(5, data.screen_width, data.screen_width)));
+                return SceneSwitch::Push(Box::new(GameScene::new(Vector2::new(100.0, 100.0), Vector2::new(0.0, -1.0))));
             }
         }
 
-        ScreenSwitch::None
+        SceneSwitch::None
 
     }
 

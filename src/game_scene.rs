@@ -10,10 +10,11 @@ pub struct GameScene{
     player_speed: f32,
     player_acceleration: f32,
     player_top_speed: f32,
+    
 }
 
 impl GameScene{
-    pub fn new(player_position:Vector2, player_direction:Vector2)-> Self {
+    pub fn new(player_position:Vector2, player_direction:Vector2) -> Self {
         Self{
             player_position:player_position,
             player_direction:player_direction,
