@@ -19,7 +19,7 @@ impl GameScene{
             player_position:player_position,
             player_direction:player_direction,
             player_speed:0.0,
-            player_acceleration:1.0,
+            player_acceleration:0.03,
             player_top_speed:50.0
         }
     }
@@ -62,9 +62,34 @@ impl Scene for GameScene{
 
     fn draw(&self, d: &mut RaylibDrawHandle, _data: &mut GameData){
         d.clear_background(Color::WHITE);
+
+        let center = Vector2::new( _data.screen_width as f32 / 2.0, _data.screen_height as f32 / 2.0);
+        let radius = 200.0;
+        let thickness = 75.0;
+        let segments = 36;
+
+        d.draw_ring(
+            center,
+            radius - thickness / 2.0, 
+            radius + thickness / 2.0, 
+            0.0,
+            360.0, 
+            segments,
+            Color::GOLDENROD,
+        );
+
         
-        d.draw_rectangle(200, 200, 300, 150, Color::RED);
-        d.draw_text("This is the game scene!", 210, 205, 20, Color::BLACK);
+        // d.draw_rectangle(200, 300, 300, 50, Color::RED);
+        // d.draw_text("This is the game scene!", 210, 305, 20, Color::BLACK);
+
+         let temp_player = Rectangle{ 
+            x: 300.0,
+            y: 20.0,
+            width: 50.0,
+            height: 20.0 
+        };
+
+        d.draw_rectangle_rounded(temp_player, 0.7, 12, Color::BLUEVIOLET);
     }
 
     fn on_exit(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData){}
