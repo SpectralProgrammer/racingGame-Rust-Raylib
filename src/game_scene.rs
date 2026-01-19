@@ -1,7 +1,6 @@
 
 use raylib::prelude::*;
 use crate::game_data::GameData;
-use crate::menu_scene::MenuScene;
 use crate::scenes::{Scene, SceneSwitch};
 
 pub struct GameScene{
@@ -27,7 +26,7 @@ impl GameScene{
 }
 
 impl Scene for GameScene{
-    fn on_enter(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData){
+    fn on_enter(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData, _thread: &RaylibThread){
         
     }
 
@@ -58,7 +57,7 @@ impl Scene for GameScene{
 
     }
 
-    fn update(&mut self, dt:f32, data:&mut GameData) -> SceneSwitch{
+    fn update(&mut self, dt:f32, _data:&mut GameData) -> SceneSwitch{
 
         // if self.player_speed<=self.player_top_speed{
         //    self.player_speed= f32::max(self.player_speed+self.player_acceleration,-0.5*self.player_top_speed);
@@ -132,6 +131,6 @@ impl Scene for GameScene{
         d.draw_rectangle_pro(car_rect,Vector2{x:car_rect.width/2.0,y:car_rect.width/2.0},self.player_direction,Color::GREEN);
     }
 
-    fn on_exit(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData){}
+    fn on_exit(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData, _thread: &RaylibThread){}
 
 }

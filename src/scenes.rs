@@ -12,7 +12,7 @@ pub enum SceneSwitch{
 }
 
 pub trait Scene{
-    fn on_enter(&mut self, _rl: &mut RaylibHandle, _date:&mut GameData){}
+    fn on_enter(&mut self, _rl: &mut RaylibHandle, _date:&mut GameData, _thread: &RaylibThread){}
 
     fn handle_input(&mut self, _rl:&mut RaylibHandle, _data:&mut GameData)->SceneSwitch {
         SceneSwitch::None
@@ -24,7 +24,7 @@ pub trait Scene{
 
     fn draw(&self, d: &mut RaylibDrawHandle, data: &mut GameData);
 
-    fn on_exit(&mut self, _rl:&mut RaylibHandle, _data:&mut GameData){}
+    fn on_exit(&mut self, _rl:&mut RaylibHandle, _data:&mut GameData, _thread: &RaylibThread){}
 }
 
 pub struct SceneManager{
@@ -33,24 +33,24 @@ pub struct SceneManager{
 }
 
 impl SceneManager{
-    pub fn new(rl: &mut RaylibHandle, initial: Box<dyn Scene>, data: &mut GameData) -> Self{
+    pub fn new(rl: &mut RaylibHandle, initial: Box<dyn Scene>, data: &mut GameData, thread: &RaylibThread) -> Self{
         let mut manager = Self{
             scenes: vec![initial],
             quit: false
         };
-        manager.scenes.last_mut().unwrap().on_enter(rl, data);
+        manager.scenes.last_mut().unwrap().on_enter(rl, data, thread);
         manager
     }
 
-    pub fn update(&mut self, rl: &mut RaylibHandle, dt: f32, data: &mut GameData){
+    pub fn update(&mut self, rl: &mut RaylibHandle, dt: f32, data: &mut GameData, thread: &RaylibThread){
         if let Some(scene) = self.scenes.last_mut(){
             let switch = scene.handle_input(rl, data);
-            self.apply_switch(switch, rl, data);
+            self.apply_switch(switch, rl, data, thread);
         }
 
         if let Some(scene) = self.scenes.last_mut(){
             let switch = scene.update(dt, data);
-            self.apply_switch(switch, rl, data);
+            self.apply_switch(switch, rl, data, thread);
         }
     }
 
@@ -60,23 +60,23 @@ impl SceneManager{
         }
     }
 
-    pub fn apply_switch(&mut self, switch:SceneSwitch, rl:&mut RaylibHandle, data: &mut GameData){
+    pub fn apply_switch(&mut self, switch:SceneSwitch, rl:&mut RaylibHandle, data: &mut GameData, thread: &RaylibThread){
         match switch{
             SceneSwitch::None=>{},
             SceneSwitch::Push(mut scene)=>{
-                scene.on_enter(rl,data);
+                scene.on_enter(rl,data, thread);
                 self.scenes.push(scene);
             },
             SceneSwitch::Replace(mut scene)=>{
                 if let Some(mut old_scene)=self.scenes.pop(){
-                    old_scene.on_exit(rl,data);
+                    old_scene.on_exit(rl,data, thread);
                 }
-                scene.on_enter(rl,data);
+                scene.on_enter(rl,data, thread);
                 self.scenes.push(scene);
             }
             SceneSwitch::Pop=>{
                 if let Some(mut old_scene)=self.scenes.pop(){
-                    old_scene.on_exit(rl,data);
+                    old_scene.on_exit(rl,data, thread);
                 }
             },
             SceneSwitch::Quit=>{
