@@ -20,7 +20,7 @@ impl MenuScene{
             .expect("Failed to load title image");
 
         let menu_texture = rl
-        .load_texture(thread, "Assets/brickBackground.jpg")
+        .load_texture(thread, "Assets/MenuBack.png")
         .expect("Failed to load menu background image");
 
         Self { title_texture: Some(title_texture), menu_texture: Some(menu_texture) }
@@ -65,8 +65,8 @@ impl Scene for MenuScene{
 
             let scale = (win_w / tex_w).min(win_h / tex_h);
 
-            let dest_w = (tex_w * scale) + 350.0;
-            let dest_h = tex_h * scale;
+            let dest_w = tex_w * scale;
+            let dest_h = (tex_h * scale) + 100.0;
 
             let dest_x = (win_w - dest_w) / 2.0;
             let dest_y = (win_h - dest_h) / 2.0;
