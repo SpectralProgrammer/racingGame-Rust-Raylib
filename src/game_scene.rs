@@ -1,6 +1,6 @@
 
 use raylib::prelude::*;
-use crate::game_data::GameData;
+use crate::game_data::{CarChoice, ControlChoice, GameData, TrackChoice};
 use crate::scenes::{Scene, SceneSwitch};
 
 pub struct GameScene{
@@ -30,24 +30,63 @@ impl Scene for GameScene{
         
     }
 
-    fn handle_input(&mut self, rl: &mut RaylibHandle, _data: &mut GameData) -> SceneSwitch{
+    fn handle_input(&mut self, rl: &mut RaylibHandle, data: &mut GameData, _thread: &RaylibThread) -> SceneSwitch{
 
-        self.player_acceleration=0.0;
-        if rl.is_key_down(KeyboardKey::KEY_W) || rl.is_key_down(KeyboardKey::KEY_UP){
-            self.player_acceleration=1.0;
-        }
-        else if rl.is_key_down(KeyboardKey::KEY_S) || rl.is_key_down(KeyboardKey::KEY_DOWN){
-            self.player_acceleration=-1.0;
+        match data.selected_control{
+            Some(ControlChoice::Keyboard) =>{
+                self.player_acceleration = 0.0;
+                if rl.is_key_down(
+                    KeyboardKey::KEY_W) ||
+                    rl.is_key_down(KeyboardKey::KEY_UP){
+                        self.player_acceleration = 1.0;
+                    }
+                else if rl.is_key_down(
+                    KeyboardKey::KEY_S) ||
+                    rl.is_key_down(KeyboardKey::KEY_DOWN){
+                        self.player_acceleration=-1.0;
+                    }
+                self.player_rot_vel = 0.0;
+                if rl.is_key_down(
+                    KeyboardKey::KEY_D) ||
+                    rl.is_key_down(KeyboardKey::KEY_RIGHT){
+                        self.player_rot_vel=1.0;
+                    }
+                else if rl.is_key_down(
+                    KeyboardKey::KEY_A) ||
+                    rl.is_key_down(KeyboardKey::KEY_LEFT){
+                        self.player_rot_vel=-1.0;
+                    }
+            }
+            Some(ControlChoice::Controller) =>{
+                //TBD
+            }
+            None =>{
+                self.player_acceleration = 0.0;
+                if rl.is_key_down(
+                    KeyboardKey::KEY_W) ||
+                    rl.is_key_down(KeyboardKey::KEY_UP){
+                        self.player_acceleration = 1.0;
+                    }
+                else if rl.is_key_down(
+                    KeyboardKey::KEY_S) ||
+                    rl.is_key_down(KeyboardKey::KEY_DOWN){
+                        self.player_acceleration=-1.0;
+                    }
+                self.player_rot_vel = 0.0;
+                if rl.is_key_down(
+                    KeyboardKey::KEY_D) ||
+                    rl.is_key_down(KeyboardKey::KEY_RIGHT){
+                        self.player_rot_vel=1.0;
+                    }
+                else if rl.is_key_down(
+                    KeyboardKey::KEY_A) ||
+                    rl.is_key_down(KeyboardKey::KEY_LEFT){
+                        self.player_rot_vel=-1.0;
+                    }
+            }
+
         }
 
-
-        self.player_rot_vel=0.0;
-        if rl.is_key_down(KeyboardKey::KEY_D) || rl.is_key_down(KeyboardKey::KEY_RIGHT){
-            self.player_rot_vel=1.0;
-        }
-        else if rl.is_key_down(KeyboardKey::KEY_A) || rl.is_key_down(KeyboardKey::KEY_LEFT){
-            self.player_rot_vel=-1.0;
-        }
 
         if rl.is_key_pressed(KeyboardKey::KEY_P){
             SceneSwitch::None; // TBD: Push to PauseScene
@@ -109,26 +148,86 @@ impl Scene for GameScene{
         SceneSwitch::None
     }
 
-    fn draw(&self, d: &mut RaylibDrawHandle, _data: &mut GameData){
+    fn draw(&self, d: &mut RaylibDrawHandle, data: &mut GameData){
         d.clear_background(Color::WHITE);
     
-        let car_rect=Rectangle{x:self.player_position.x,y:self.player_position.y,width:50.0,height:20.0};
+        let car_rect = Rectangle{x:self.player_position.x, y:self.player_position.y, width:50.0, height:20.0};
         
-         let center = Vector2::new( _data.screen_width as f32 / 2.0, _data.screen_height as f32 / 2.0);
+        let center = Vector2::new( data.screen_width as f32 / 2.0, data.screen_height as f32 / 2.0);
         let radius = 200.0;
         let thickness = 75.0;
         let segments = 36;
 
-        d.draw_ring(
-            center,
-            radius - thickness / 2.0, 
-            radius + thickness / 2.0, 
-            0.0,
-            360.0, 
-            segments,
-            Color::GOLDENROD,
-        );
-        d.draw_rectangle_pro(car_rect,Vector2{x:car_rect.width/2.0,y:car_rect.width/2.0},self.player_direction,Color::GREEN);
+        match data.selected_track{
+            Some(TrackChoice::Track1) => d.draw_ring(
+                        center,
+                        radius - thickness / 2.0, 
+                        radius + thickness / 2.0, 
+                        0.0,
+                        360.0, 
+                        segments,
+                        Color::KHAKI,
+                    ),
+            Some(TrackChoice::Track2) => d.draw_ring(
+                        center,
+                        radius - thickness / 2.0, 
+                        radius + thickness / 2.0, 
+                        0.0,
+                        360.0, 
+                        segments,
+                        Color::FIREBRICK,
+                    ),
+            Some(TrackChoice::Track3) => d.draw_ring(
+                        center,
+                        radius - thickness / 2.0, 
+                        radius + thickness / 2.0, 
+                        0.0,
+                        360.0, 
+                        segments,
+                        Color::PAPAYAWHIP,
+                    ),
+            Some(TrackChoice::Track4) => d.draw_ring(
+                        center,
+                        radius - thickness / 2.0, 
+                        radius + thickness / 2.0, 
+                        0.0,
+                        360.0, 
+                        segments,
+                        Color::BURLYWOOD,
+                    ),
+            None => d.draw_ring(
+                        center,
+                        radius - thickness / 2.0, 
+                        radius + thickness / 2.0, 
+                        0.0,
+                        360.0, 
+                        segments,
+                        Color::GOLDENROD,
+                    )
+            }
+
+        match data.selected_car{
+            Some(CarChoice::Car1) => d.draw_rectangle_pro(
+                car_rect,Vector2{x:car_rect.width/2.0,y:car_rect.width/2.0},
+                self.player_direction,
+                Color::BLUEVIOLET),
+            Some(CarChoice::Car2) => d.draw_rectangle_pro(
+                car_rect,Vector2{x:car_rect.width/2.0,y:car_rect.width/2.0},
+                self.player_direction,
+                Color::NAVY),
+            Some(CarChoice::Car3) => d.draw_rectangle_pro(
+                car_rect,Vector2{x:car_rect.width/2.0,y:car_rect.width/2.0},
+                self.player_direction,
+                Color::BROWN),
+            Some(CarChoice::Car4) => d.draw_rectangle_pro(
+                car_rect,Vector2{x:car_rect.width/2.0,y:car_rect.width/2.0},
+                self.player_direction,
+                Color::DARKORCHID),
+            None => d.draw_rectangle_pro(
+                car_rect,Vector2{x:car_rect.width/2.0,y:car_rect.width/2.0},
+                self.player_direction,
+                Color::GREEN),
+        }
     }
 
     fn on_exit(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData, _thread: &RaylibThread){}

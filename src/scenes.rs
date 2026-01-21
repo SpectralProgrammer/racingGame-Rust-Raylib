@@ -14,7 +14,7 @@ pub enum SceneSwitch{
 pub trait Scene{
     fn on_enter(&mut self, _rl: &mut RaylibHandle, _date:&mut GameData, _thread: &RaylibThread){}
 
-    fn handle_input(&mut self, _rl:&mut RaylibHandle, _data:&mut GameData)->SceneSwitch {
+    fn handle_input(&mut self, _rl:&mut RaylibHandle, _data:&mut GameData, _thread: &RaylibThread) -> SceneSwitch {
         SceneSwitch::None
     }
 
@@ -44,7 +44,7 @@ impl SceneManager{
 
     pub fn update(&mut self, rl: &mut RaylibHandle, dt: f32, data: &mut GameData, thread: &RaylibThread){
         if let Some(scene) = self.scenes.last_mut(){
-            let switch = scene.handle_input(rl, data);
+            let switch = scene.handle_input(rl, data, thread);
             self.apply_switch(switch, rl, data, thread);
         }
 

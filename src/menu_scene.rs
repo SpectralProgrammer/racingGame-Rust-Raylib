@@ -2,7 +2,6 @@
 use raylib::prelude::*;
 
 use crate::game_data::GameData;
-use crate::game_scene::GameScene;
 use crate::scenes::{Scene, SceneSwitch};
 use crate::select_scene::SelectScene;
 use crate::settings_scene::SettingsScene;
@@ -10,7 +9,7 @@ use crate::utils::*;
 
 pub struct MenuScene{
     title_texture: Option<Texture2D>,
-    menu_texture: Option<Texture2D>
+    background_texture: Option<Texture2D>
 }
 
 impl MenuScene{
@@ -23,14 +22,14 @@ impl MenuScene{
         .load_texture(thread, "Assets/MenuBack.png")
         .expect("Failed to load menu background image");
 
-        Self { title_texture: Some(title_texture), menu_texture: Some(menu_texture) }
+        Self { title_texture: Some(title_texture), background_texture: Some(menu_texture) }
     }
 }
 
 impl Scene for MenuScene{
     fn on_enter(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData, _thread: &RaylibThread){}
 
-    fn handle_input(&mut self, rl:&mut RaylibHandle, _data:&mut GameData) -> SceneSwitch{
+    fn handle_input(&mut self, rl:&mut RaylibHandle, _data:&mut GameData, thread: &RaylibThread) -> SceneSwitch{
         if rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT){
             let click = rl.get_mouse_position();
 
@@ -39,12 +38,13 @@ impl Scene for MenuScene{
 
             if check_collision_point_rect(&click, &play_button_rectangle){
                 println!("Play button clicked");
-                // return SceneSwitch::Push(Box::new(GameScene::new(Vector2::new(100.0, 100.0), 90.0)));
-                return SceneSwitch::Push(Box::new(SelectScene));
+                let select_scene = SelectScene::new(rl, thread);
+                return SceneSwitch::Push(Box::new(select_scene));
             }
             else if check_collision_point_rect(&click,&settings_button_rectangle){
                 println!("Settings button clicked");
-                return SceneSwitch::Push(Box::new(SettingsScene));
+                let settings_scene = SettingsScene::new(rl, thread);
+                return SceneSwitch::Push(Box::new(settings_scene));
             }
         }
 
@@ -56,7 +56,7 @@ impl Scene for MenuScene{
         d.clear_background(Color::WHITE);
 
         // Resizing the background image to fill screen
-        if let Some(texture) = &self.menu_texture {
+        if let Some(texture) = &self.background_texture{
             let tex_w = texture.width as f32;
             let tex_h = texture.height as f32;
 
