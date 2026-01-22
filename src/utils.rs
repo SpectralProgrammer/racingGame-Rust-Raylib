@@ -1,11 +1,10 @@
-
 use raylib::prelude::*;
 //use rand::Rng;
 
-pub fn check_collision_point_rect(point: &Vector2, rect: &Rectangle) -> bool{
+pub fn check_collision_point_rect(point: &Vector2, rect: &Rectangle) -> bool {
     let in_x = point.x >= rect.x && point.x <= rect.x + rect.width;
     let in_y = point.y >= rect.y && point.y <= rect.y + rect.height;
-    
+
     return in_x && in_y;
 }
 

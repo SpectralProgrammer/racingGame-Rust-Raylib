@@ -1,11 +1,11 @@
 use racingGame::game_data::GameData;
 use racingGame::menu_scene::MenuScene;
 use racingGame::scenes::SceneManager;
+use raylib::prelude::*;
 
 use std::time::Instant;
 
-fn main(){
-
+fn main() {
     // Game window dimensions
     let width = 960;
     let height = 720;
@@ -16,20 +16,29 @@ fn main(){
         .title("WD40:Rust-Off")
         .build();
 
+    let audio = RaylibAudio::init_audio_device().unwrap();
+    audio.set_master_volume(0.3);
+
+    let music = audio.new_music("./Assets/song.mp3").unwrap();
+
+    music.play_stream();
+
     let mut game_data = GameData::new(width, height);
 
     let menu_scene = MenuScene::new(&mut rl, &thread);
-    let mut scene_manager = SceneManager::new(&mut rl, Box::new(menu_scene), &mut game_data, &thread);
+    let mut scene_manager =
+        SceneManager::new(&mut rl, Box::new(menu_scene), &mut game_data, &thread);
 
     let mut last_time = Instant::now();
-     
-    while !rl.window_should_close() && !scene_manager.should_quit(){
+
+    while !rl.window_should_close() && !scene_manager.should_quit() {
+        music.update_stream();
         let temp = Instant::now();
         let delta = (temp - last_time).as_secs_f32();
         last_time = temp;
-        
+
         scene_manager.update(&mut rl, delta, &mut game_data, &thread);
-        
+
         let mut d = rl.begin_drawing(&thread);
         scene_manager.draw(&mut d, &mut game_data);
     }
