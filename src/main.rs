@@ -17,7 +17,7 @@ fn main() {
         .build();
 
     let audio = RaylibAudio::init_audio_device().unwrap();
-    audio.set_master_volume(0.3);
+    audio.set_master_volume(0.2);
 
     let music = audio.new_music("./Assets/song.mp3").unwrap();
 

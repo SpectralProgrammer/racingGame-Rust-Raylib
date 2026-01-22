@@ -1,16 +1,15 @@
-
 use raylib::prelude::*;
 
-use crate::game_data::{GameData, ControlChoice};
-use crate::select_scene::SelectScene;
+use crate::game_data::{ControlChoice, GameData};
 use crate::scenes::{Scene, SceneSwitch};
+use crate::select_scene::SelectScene;
 use crate::utils::*;
 
-pub struct SettingsScene{
+pub struct SettingsScene {
     background_texture: Option<Texture2D>,
 }
 
-impl SettingsScene{
+impl SettingsScene {
     pub fn new(rl: &mut RaylibHandle, thread: &RaylibThread) -> Self {
         let background_texture = rl
             .load_texture(thread, "Assets/settingsBack.png")
@@ -22,7 +21,7 @@ impl SettingsScene{
     }
 }
 
-impl Scene for SettingsScene{
+impl Scene for SettingsScene {
     fn on_enter(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData, _thread: &RaylibThread) {}
 
     fn handle_input(
@@ -78,7 +77,7 @@ impl Scene for SettingsScene{
         SceneSwitch::None
     }
 
-    fn draw(&self, d: &mut RaylibDrawHandle, data: &mut GameData){
+    fn draw(&self, d: &mut RaylibDrawHandle, data: &mut GameData) {
         d.clear_background(Color::KHAKI);
 
         let screen_center_x = data.screen_width as f32 / 2.0;
@@ -146,13 +145,13 @@ impl Scene for SettingsScene{
         let default_color = Color::BURLYWOOD;
         let selected_color = Color::LEMONCHIFFON;
 
-        let controller_color = if data.selected_control == Some(ControlChoice::Controller){
+        let controller_color = if data.selected_control == Some(ControlChoice::Controller) {
             selected_color
         } else {
             default_color
         };
 
-        let keyboard_color = if data.selected_control == Some(ControlChoice::Keyboard){
+        let keyboard_color = if data.selected_control == Some(ControlChoice::Keyboard) {
             selected_color
         } else {
             default_color

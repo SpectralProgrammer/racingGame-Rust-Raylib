@@ -1,20 +1,24 @@
-
 use raylib::prelude::*;
 
-use crate::game_data::{GameData, CarChoice, TrackChoice};
+use crate::game_data::{CarChoice, GameData, TrackChoice};
 use crate::game_scene::GameScene;
 use crate::scenes::{Scene, SceneSwitch};
 use crate::utils::*;
 
-pub struct SelectScene{
+pub struct SelectScene {
     background_texture: Option<Texture2D>,
     car_rects: [Rectangle; 4],
     track_rects: [Rectangle; 4],
     play_rect: Rectangle,
 }
 
-impl SelectScene{
-    pub fn new(rl: &mut RaylibHandle, thread: &RaylibThread, screen_width: i32, _screen_height: i32) -> Self {
+impl SelectScene {
+    pub fn new(
+        rl: &mut RaylibHandle,
+        thread: &RaylibThread,
+        screen_width: i32,
+        _screen_height: i32,
+    ) -> Self {
         let background_texture = rl
             .load_texture(thread, "Assets/selectBack2.png")
             .expect("Failed to load select background image");
@@ -72,12 +76,17 @@ impl SelectScene{
 impl Scene for SelectScene {
     fn on_enter(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData, _thread: &RaylibThread) {}
 
-    fn handle_input(&mut self, rl: &mut RaylibHandle, data: &mut GameData, thread: &RaylibThread) -> SceneSwitch{
+    fn handle_input(
+        &mut self,
+        rl: &mut RaylibHandle,
+        data: &mut GameData,
+        thread: &RaylibThread,
+    ) -> SceneSwitch {
         if rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
             let click = rl.get_mouse_position();
 
             // Play button
-            if check_collision_point_rect(&click, &self.play_rect){
+            if check_collision_point_rect(&click, &self.play_rect) {
                 println!("Play button clicked");
                 return SceneSwitch::Push(Box::new(GameScene::new(
                     rl,
@@ -88,7 +97,7 @@ impl Scene for SelectScene {
             }
 
             // Track selection
-            for (i, rect) in self.track_rects.iter().enumerate(){
+            for (i, rect) in self.track_rects.iter().enumerate() {
                 if check_collision_point_rect(&click, rect) {
                     data.selected_track = Some(match i {
                         0 => TrackChoice::Track1,
@@ -101,7 +110,7 @@ impl Scene for SelectScene {
             }
 
             // Car selection
-            for (i, rect) in self.car_rects.iter().enumerate(){
+            for (i, rect) in self.car_rects.iter().enumerate() {
                 if check_collision_point_rect(&click, rect) {
                     data.selected_car = Some(match i {
                         0 => CarChoice::Car1,
@@ -117,7 +126,7 @@ impl Scene for SelectScene {
         SceneSwitch::None
     }
 
-    fn draw(&self, d: &mut RaylibDrawHandle, data: &mut GameData){
+    fn draw(&self, d: &mut RaylibDrawHandle, data: &mut GameData) {
         // Clear background
         d.clear_background(Color::WHITESMOKE);
 
@@ -125,7 +134,7 @@ impl Scene for SelectScene {
         let screen_center_x = screen_w / 2.0;
 
         // Draw background texture
-        if let Some(texture) = &self.background_texture{
+        if let Some(texture) = &self.background_texture {
             let tex_w = texture.width as f32;
             let tex_h = texture.height as f32;
             let win_w = data.screen_width as f32;
@@ -162,7 +171,7 @@ impl Scene for SelectScene {
             Color::BLACK,
         );
 
-        for (i, rect) in self.track_rects.iter().enumerate(){
+        for (i, rect) in self.track_rects.iter().enumerate() {
             let track = match i {
                 0 => TrackChoice::Track1,
                 1 => TrackChoice::Track2,
@@ -199,7 +208,7 @@ impl Scene for SelectScene {
             Color::BLACK,
         );
 
-        for (i, rect) in self.car_rects.iter().enumerate(){
+        for (i, rect) in self.car_rects.iter().enumerate() {
             let car = match i {
                 0 => CarChoice::Car1,
                 1 => CarChoice::Car2,
@@ -241,8 +250,8 @@ impl Scene for SelectScene {
     }
 
     fn on_exit(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData, _thread: &RaylibThread) {}
-    
-    fn update(&mut self, _dt: f32, _data: &mut GameData) -> SceneSwitch{
+
+    fn update(&mut self, _dt: f32, _data: &mut GameData) -> SceneSwitch {
         SceneSwitch::None
     }
 }
