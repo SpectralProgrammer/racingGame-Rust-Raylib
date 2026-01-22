@@ -22,7 +22,10 @@ pub struct GameData {
     pub selected_car: Option<CarChoice>,
     pub selected_track: Option<TrackChoice>,
 
-    pub selected_control: Option<ControlChoice>
+    pub selected_control: Option<ControlChoice>,
+
+    pub race_time: f32,
+    pub race_started: bool
 }
 
 impl GameData{
@@ -33,7 +36,9 @@ impl GameData{
             screen_height: height,
             selected_car: None,
             selected_track: None,
-            selected_control: None
+            selected_control: None,
+            race_time: 0.0,
+            race_started: false
         }
     }
 }

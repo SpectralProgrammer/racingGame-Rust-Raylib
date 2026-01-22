@@ -26,8 +26,10 @@ impl GameScene{
 }
 
 impl Scene for GameScene{
-    fn on_enter(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData, _thread: &RaylibThread){
-        
+    fn on_enter(&mut self, _rl: &mut RaylibHandle, data: &mut GameData, _thread: &RaylibThread){
+            //Resetting timer
+            data.race_time = 0.0;
+            data.race_started = false;
     }
 
     fn handle_input(&mut self, rl: &mut RaylibHandle, data: &mut GameData, _thread: &RaylibThread) -> SceneSwitch{
@@ -60,7 +62,7 @@ impl Scene for GameScene{
             Some(ControlChoice::Controller) =>{
                 //TBD
             }
-            None =>{
+            None =>{ // Defaults to keyboard controls
                 self.player_acceleration = 0.0;
                 if rl.is_key_down(
                     KeyboardKey::KEY_W) ||
@@ -89,14 +91,23 @@ impl Scene for GameScene{
 
 
         if rl.is_key_pressed(KeyboardKey::KEY_P){
-            SceneSwitch::None; // TBD: Push to PauseScene
+            println!("Pause");
         }
         
         SceneSwitch::None
 
     }
 
-    fn update(&mut self, dt:f32, _data:&mut GameData) -> SceneSwitch{
+    fn update(&mut self, dt:f32, data:&mut GameData) -> SceneSwitch{
+
+        // Start race timer when player starts moving
+        if !data.race_started && self.player_speed.abs() > 1.0{
+            data.race_started = true;
+        }
+
+        if data.race_started{
+            data.race_time += dt;
+        }
 
         // if self.player_speed<=self.player_top_speed{
         //    self.player_speed= f32::max(self.player_speed+self.player_acceleration,-0.5*self.player_top_speed);
@@ -150,6 +161,20 @@ impl Scene for GameScene{
 
     fn draw(&self, d: &mut RaylibDrawHandle, data: &mut GameData){
         d.clear_background(Color::WHITE);
+
+        let minutes = (data.race_time / 60.0).floor() as i32;
+        let seconds = (data.race_time % 60.0) as i32;
+        let milliseconds = ((data.race_time * 1000.0) % 1000.0) as i32;
+
+        let timer_text = format!("{:02}:{:02}.{:03}", minutes, seconds, milliseconds);
+
+        d.draw_text(
+            &timer_text,
+            10,
+            10,
+            30,
+            Color::BLACK,
+        );
     
         let car_rect = Rectangle{x:self.player_position.x, y:self.player_position.y, width:50.0, height:20.0};
         
