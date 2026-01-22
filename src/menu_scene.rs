@@ -52,7 +52,7 @@ impl Scene for MenuScene{
 
     }
 
-    fn draw(&self, d: &mut RaylibDrawHandle, _data: &mut GameData){
+    fn draw(&self, d: &mut RaylibDrawHandle, data: &mut GameData){
         d.clear_background(Color::WHITE);
 
         // Resizing the background image to fill screen
@@ -60,13 +60,13 @@ impl Scene for MenuScene{
             let tex_w = texture.width as f32;
             let tex_h = texture.height as f32;
 
-            let win_w = 640.0;
-            let win_h = 480.0;
+            let win_w = data.screen_width as f32;
+            let win_h = data.screen_height as f32;
 
-            let scale = (win_w / tex_w).min(win_h / tex_h);
+            let scale = (win_w / tex_w).max(win_h / tex_h);
 
             let dest_w = tex_w * scale;
-            let dest_h = (tex_h * scale) + 100.0;
+            let dest_h = (tex_h * scale);
 
             let dest_x = (win_w - dest_w) / 2.0;
             let dest_y = (win_h - dest_h) / 2.0;

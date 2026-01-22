@@ -27,7 +27,7 @@ impl SelectScene {
 impl Scene for SelectScene{
     fn on_enter(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData, _thread: &RaylibThread){}
 
-    fn handle_input(&mut self, rl:&mut RaylibHandle, data:&mut GameData, _thread: &RaylibThread) -> SceneSwitch{
+    fn handle_input(&mut self, rl:&mut RaylibHandle, data:&mut GameData, thread: &RaylibThread) -> SceneSwitch{
         if rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT){
             let click = rl.get_mouse_position();
 
@@ -45,7 +45,7 @@ impl Scene for SelectScene{
 
             if check_collision_point_rect(&click, &play_button_rectangle){
                 println!("Play button clicked");
-                return SceneSwitch::Push(Box::new(GameScene::new(Vector2::new(100.0, 100.0), 90.0)));
+                return SceneSwitch::Push(Box::new(GameScene::new(rl, thread,Vector2::new(100.0, 100.0), 90.0)));
             }
             else if check_collision_point_rect(&click, &car1_button_rectangle){
                 data.selected_car = Some(CarChoice::Car1);

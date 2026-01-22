@@ -5,24 +5,69 @@ use crate::scenes::{Scene, SceneSwitch};
 
 pub struct GameScene{
     player_position: Vector2,
-    player_direction: f32,  // change to angle, use trig to get movement
+    player_direction: f32,  
     player_speed: f32,
     player_acceleration: f32,
-    player_top_speed: f32,
     player_rot_vel: f32,
+    track_texture: Option<Texture2D>,
+    track_image: Option<Image>
 }
 
 impl GameScene{
-    pub fn new(player_position:Vector2, player_direction:f32) -> Self{
+    pub fn new(rl: &mut RaylibHandle, thread: &RaylibThread, player_position:Vector2, player_direction:f32) -> Self{
+
+        let track_image = Image::load_image("Assets/track1.png")
+        .expect("Failed to load track image");
+
+        let track_texture = rl
+        .load_texture(thread, "Assets/track1.png")
+        .expect("Failed to load track image");
+
         Self{
             player_position:player_position,
             player_direction:player_direction,
             player_speed:0.0,
             player_acceleration:0.0,
-            player_top_speed:400.0,
-            player_rot_vel:0.0
+            player_rot_vel:0.0,
+            track_texture: Some(track_texture),
+            track_image: Some(track_image)
         }
     }
+
+//     fn is_off_track(&self, data: &GameData) -> bool {
+//     let image = match self.track_image.as_ref(){
+//         Some(img) => img,
+//         None => return false,
+//     };
+
+//     let tex_w = image.width as f32;
+//     let tex_h = image.height as f32;
+//     let win_w = data.screen_width as f32;
+//     let win_h = data.screen_height as f32;
+
+//     let scale = (win_w / tex_w).max(win_h / tex_h);
+//     let dest_w = (tex_w * scale) + 450.0;
+//     let dest_h = (tex_h * scale) + 450.0;
+
+//     let dest_x = (win_w - dest_w) / 2.0;
+//     let dest_y = (win_h - dest_h) / 2.0;
+
+//     // Map player screen position to image pixel coordinates
+//     let u = ((self.player_position.x - dest_x) / dest_w) * tex_w;
+//     let v = ((self.player_position.y - dest_y) / dest_h) * tex_h;
+
+//     // Bounds check
+//     if u < 0.0 || v < 0.0 || u >= tex_w || v >= tex_h {
+//         return true; 
+//     }
+
+//     // Safe color lookup
+//     let pixel = image.get_color(u as i32, v as i32);
+
+//     // Check if the pixel is "black" (off-track)
+//     pixel.r < 20 && pixel.g < 20 && pixel.b < 20
+// }
+
 }
 
 impl Scene for GameScene{
@@ -109,24 +154,14 @@ impl Scene for GameScene{
             data.race_time += dt;
         }
 
-        // if self.player_speed<=self.player_top_speed{
-        //    self.player_speed= f32::max(self.player_speed+self.player_acceleration,-0.5*self.player_top_speed);
-        // } else {
-        //     self.player_speed=self.player_top_speed;
-        // }
+        let (accel_rate,brake_rate,drag,max_speed,handling)=match data.selected_car{
+            None | Some(CarChoice::Car1)=> (200.0,300.0,4.0,400.0,120.0),
+            Some(CarChoice::Car2)=>(100.0,100.0,1.0,1000.0,240.0),
+            Some(CarChoice::Car3)=>(500.0,500.0,8.0,200.0,300.0),
+            Some(CarChoice::Car4)=>(200.0,300.0,4.0,400.0,120.0),
+        };
+
         
-        // let speed_delta=self.player_speed*_dt;
-        // let accel_delta=self.player_acceleration*_dt;
-        // let rotation_delta=self.player_rot_vel*_dt;
-        // self.player_direction=(self.player_direction+rotation_delta)%360.0;
-        // let dir_rad=self.player_direction.to_radians();
-        // let velocity:Vector2=Vector2::new(dir_rad.cos(),dir_rad.sin());
-        // self.player_position=self.player_position+velocity*speed_delta;
-        
-        let accel_rate=200.0;
-        let brake_rate=300.0;
-        let drag =4.0;
-        let max_speed=self.player_top_speed;
 
         let accel= if self.player_acceleration>0.0{
             accel_rate
@@ -146,8 +181,8 @@ impl Scene for GameScene{
             max_speed,
         );
 
-        let steering_strength=self.player_rot_vel * 120.0;
-        let speed_factor=self.player_speed.abs()/max_speed;
+        let steering_strength=self.player_rot_vel * handling;
+        let speed_factor=(self.player_speed.abs()/max_speed).clamp(0.2,1.0);
 
         self.player_direction=(self.player_direction+steering_strength*speed_factor*dt)%360.0;
 
@@ -168,13 +203,7 @@ impl Scene for GameScene{
 
         let timer_text = format!("{:02}:{:02}.{:03}", minutes, seconds, milliseconds);
 
-        d.draw_text(
-            &timer_text,
-            10,
-            10,
-            30,
-            Color::BLACK,
-        );
+        
     
         let car_rect = Rectangle{x:self.player_position.x, y:self.player_position.y, width:50.0, height:20.0};
         
@@ -220,22 +249,46 @@ impl Scene for GameScene{
                         segments,
                         Color::BURLYWOOD,
                     ),
-            None => d.draw_ring(
-                        center,
-                        radius - thickness / 2.0, 
-                        radius + thickness / 2.0, 
-                        0.0,
-                        360.0, 
-                        segments,
-                        Color::GOLDENROD,
-                    )
+            None => {
+                    // Resizing the background image to fill screen
+                    if let Some(texture) = &self.track_texture{
+                        let tex_w = texture.width as f32;
+                        let tex_h = texture.height as f32;
+
+                        let win_w = data.screen_width as f32;
+                        let win_h = data.screen_height as f32;
+
+                        let scale = (win_w / tex_w).max(win_h / tex_h);
+
+                        let dest_w = (tex_w * scale) + 450.0;
+                        let dest_h = (tex_h * scale) + 450.0;
+
+                        let dest_x = (win_w - dest_w) / 2.0;
+                        let dest_y = (win_h - dest_h) / 2.0;
+
+                        let source = Rectangle::new(0.0, 0.0, tex_w, tex_h);
+                        let dest = Rectangle::new(dest_x, dest_y, dest_w, dest_h);
+
+                        d.draw_texture_pro(
+                            texture,
+                            source,
+                            dest,
+                            Vector2::zero(),
+                            0.0,
+                            Color::WHITE,
+                        );
+                    }
+                }
             }
 
         match data.selected_car{
-            Some(CarChoice::Car1) => d.draw_rectangle_pro(
+            Some(CarChoice::Car1) | None=> {
+                d.draw_rectangle_pro(
                 car_rect,Vector2{x:car_rect.width/2.0,y:car_rect.width/2.0},
                 self.player_direction,
-                Color::BLUEVIOLET),
+                Color::BLUEVIOLET);
+                d.draw_text("Default car",data.screen_width-200,data.screen_height-50,25,Color::WHITE)
+            },
             Some(CarChoice::Car2) => d.draw_rectangle_pro(
                 car_rect,Vector2{x:car_rect.width/2.0,y:car_rect.width/2.0},
                 self.player_direction,
@@ -248,11 +301,15 @@ impl Scene for GameScene{
                 car_rect,Vector2{x:car_rect.width/2.0,y:car_rect.width/2.0},
                 self.player_direction,
                 Color::DARKORCHID),
-            None => d.draw_rectangle_pro(
-                car_rect,Vector2{x:car_rect.width/2.0,y:car_rect.width/2.0},
-                self.player_direction,
-                Color::GREEN),
         }
+
+        d.draw_text(
+            &timer_text,
+            10,
+            10,
+            30,
+            Color::WHITE,
+        );
     }
 
     fn on_exit(&mut self, _rl: &mut RaylibHandle, _data: &mut GameData, _thread: &RaylibThread){}

@@ -1,6 +1,3 @@
-
-use raylib::prelude::*;
-
 use racingGame::game_data::GameData;
 use racingGame::menu_scene::MenuScene;
 use racingGame::scenes::SceneManager;
@@ -10,8 +7,8 @@ use std::time::Instant;
 fn main(){
 
     // Game window dimensions
-    let width = 640;
-    let height = 480;
+    let width = 960;
+    let height = 720;
 
     // Creating game window
     let (mut rl, thread) = raylib::init()
